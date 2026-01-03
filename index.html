@@ -3,64 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUQMAN MAIN MENU</title>
+    <title>LUQMAN HUB</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --main: #0366d6; --bg: #f0f2f5; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        h1 { color: #1a1a1a; margin-bottom: 30px; }
-        .grid { width: 100%; max-width: 450px; display: grid; gap: 12px; }
-        .card { 
-            background: white; padding: 18px; border-radius: 15px; 
-            text-decoration: none; color: black; font-weight: 600;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s;
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding-bottom: 50px;
         }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-left: 6px solid var(--main); }
-        .sub { font-size: 0.8em; color: #666; font-weight: normal; margin-top: 4px; }
-        .loading { font-style: italic; color: #888; }
+        .header-section {
+            background: #fff;
+            padding: 30px 20px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .main-title { font-weight: 800; color: #1a1a1a; letter-spacing: -1px; }
+        
+        /* Form Card */
+        .admin-card {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid #eee;
+            background: #fdfdfd;
+        }
+        .btn-add {
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            background: #0366d6;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-add:hover { background: #024da3; transform: scale(1.02); }
+
+        /* App Cards */
+        .app-link {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .app-link:hover {
+            transform: translateY(-5px);
+            border-color: #0366d6;
+            box-shadow: 0 12px 20px rgba(3, 102, 214, 0.1);
+        }
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background: #eef5ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #0366d6;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .app-info h5 { margin: 0; font-size: 1.1rem; color: #2d3436; font-weight: 600; }
+        .app-info p { margin: 0; font-size: 0.85rem; color: #636e72; }
+        
+        .loading-spinner { display: none; }
     </style>
 </head>
 <body>
 
-    <h1>LUQMAN MAIN MENU</h1>
-    <div id="list" class="grid"><p class="loading">Menghubungkan ke Google Sheets...</p></div>
+    <div class="header-section">
+        <h2 class="main-title">LUQMAN HUB</h2>
+        <p class="text-muted">Pusat Akses Aplikasi Luqman</p>
+    </div>
+
+    <div class="container" style="max-width: 500px;">
+        <div class="card admin-card p-4">
+            <h6 class="mb-3 text-uppercase fw-bold text-secondary" style="font-size: 0.75rem;">Tambah Aplikasi Baru</h6>
+            <input type="text" id="desc" class="form-control mb-2" placeholder="Nama Aplikasi (cth: Solat Tracker)">
+            <input type="text" id="url" class="form-control mb-3" placeholder="URL Link (https://...)">
+            <button onclick="submitData()" id="btnSubmit" class="btn btn-primary btn-add w-100">
+                <span id="btnText">TAMBAH KE SENARAI</span>
+                <span id="loader" class="spinner-border spinner-border-sm loading-spinner"></span>
+            </button>
+        </div>
+
+        <div id="list">
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Memuatkan menu...</p>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // MASUKKAN LINK 'PUBLISH TO WEB' AWAK DI BAWAH
-        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQahrp8OMMIBVS3SmwpndnDlpz8QYnF5yDIUyjjKbOVJejgSVS-MuNjKWjHYOymIYQURZGYUM2JXS7D/pub?output=csv';
+        window.onload = loadMenu;
 
-        async function loadMenu() {
-            try {
-                const response = await fetch(sheetUrl);
-                const csvData = await response.text();
-                
-                // Proses data CSV ke Array
-                const rows = csvData.split('\n').map(row => row.split(','));
-                const container = document.getElementById('list');
-                container.innerHTML = ''; // Buang text loading
-
-                // Mula dari row ke-2 (index 1) sebab row 1 adalah header (Description, Link)
-                for (let i = 1; i < rows.length; i++) {
-                    const desc = rows[i][0]?.trim();
-                    const link = rows[i][1]?.trim();
-
-                    if (desc && link) {
-                        container.innerHTML += `
-                            <a href="${link}" class="card">
-                                <div>
-                                    ${desc}
-                                    <div class="sub">Klik untuk buka aplikasi</div>
-                                </div>
-                                <span style="color:var(--main)">➔</span>
-                            </a>`;
-                    }
-                }
-            } catch (e) {
-                document.getElementById('list').innerHTML = "Gagal tarik data. Pastikan dah 'Publish to Web'.";
-            }
+        function loadMenu() {
+            google.script.run.withSuccessHandler(showMenu).getMenuData();
         }
 
-        loadMenu();
+        function showMenu(data) {
+            const container = document.getElementById('list');
+            container.innerHTML = '';
+            
+            // Reverse supaya yang baru ditambah duduk di atas
+            data.reverse().forEach(row => {
+                if(row[0] && row[1]) {
+                    const firstLetter = row[0].charAt(0).toUpperCase();
+                    container.innerHTML += `
+                        <a href="${row[1]}" target="_blank" class="app-link">
+                            <div class="icon-box">${firstLetter}</div>
+                            <div class="app-info">
+                                <h5>${row[0]}</h5>
+                                <p>Buka Aplikasi ➔</p>
+                            </div>
+                        </a>`;
+                }
+            });
+        }
+
+        function submitData() {
+            const desc = document.getElementById('desc').value;
+            const url = document.getElementById('url').value;
+            const btnText = document.getElementById('btnText');
+            const loader = document.getElementById('loader');
+
+            if(!desc || !url) return alert("Sila isi semua maklumat!");
+
+            // Loading state
+            btnText.style.display = 'none';
+            loader.style.display = 'inline-block';
+            document.getElementById('btnSubmit').disabled = true;
+
+            google.script.run.withSuccessHandler(() => {
+                // Reset form
+                document.getElementById('desc').value = '';
+                document.getElementById('url').value = '';
+                btnText.style.display = 'inline';
+                loader.style.display = 'none';
+                document.getElementById('btnSubmit').disabled = false;
+                
+                loadMenu(); // Refresh list
+            }).addLink(desc, url);
+        }
     </script>
 </body>
 </html>
