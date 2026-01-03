@@ -1,166 +1,90 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUQMAN HUB</title>
+    <base target="_top">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding-bottom: 50px;
-        }
-        .header-section {
-            background: #fff;
-            padding: 30px 20px;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .main-title { font-weight: 800; color: #1a1a1a; letter-spacing: -1px; }
-        
-        /* Form Card */
-        .admin-card {
-            background: white;
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-        .form-control {
-            border-radius: 10px;
-            padding: 12px;
-            border: 1px solid #eee;
-            background: #fdfdfd;
-        }
-        .btn-add {
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: 600;
-            background: #0366d6;
-            border: none;
-            transition: 0.3s;
-        }
-        .btn-add:hover { background: #024da3; transform: scale(1.02); }
-
-        /* App Cards */
-        .app-link {
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            background: white;
-            padding: 20px;
-            border-radius: 18px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        }
-        .app-link:hover {
-            transform: translateY(-5px);
-            border-color: #0366d6;
-            box-shadow: 0 12px 20px rgba(3, 102, 214, 0.1);
-        }
-        .icon-box {
-            width: 50px;
-            height: 50px;
-            background: #eef5ff;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: #0366d6;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        .app-info h5 { margin: 0; font-size: 1.1rem; color: #2d3436; font-weight: 600; }
-        .app-info p { margin: 0; font-size: 0.85rem; color: #636e72; }
-        
-        .loading-spinner { display: none; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8f9fa; padding: 20px; }
+        .main-card { max-width: 500px; margin: auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 25px; }
+        .app-item { display: flex; align-items: center; padding: 15px; background: #fff; border: 1px solid #eee; border-radius: 15px; margin-bottom: 10px; text-decoration: none; color: #333; transition: 0.2s; }
+        .app-item:hover { transform: translateY(-3px); border-color: #0d6efd; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .icon { width: 45px; height: 45px; background: #e7f0ff; color: #0d6efd; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; }
+        .loading { text-align: center; padding: 20px; color: #888; }
     </style>
 </head>
 <body>
 
-    <div class="header-section">
-        <h2 class="main-title">LUQMAN HUB</h2>
-        <p class="text-muted">Pusat Akses Aplikasi Luqman</p>
-    </div>
+    <div class="main-card">
+        <h2 class="text-center fw-800 mb-1">LUQMAN HUB</h2>
+        <p class="text-center text-muted small mb-4">Pusat Akses Aplikasi</p>
 
-    <div class="container" style="max-width: 500px;">
-        <div class="card admin-card p-4">
-            <h6 class="mb-3 text-uppercase fw-bold text-secondary" style="font-size: 0.75rem;">Tambah Aplikasi Baru</h6>
-            <input type="text" id="desc" class="form-control mb-2" placeholder="Nama Aplikasi (cth: Solat Tracker)">
-            <input type="text" id="url" class="form-control mb-3" placeholder="URL Link (https://...)">
-            <button onclick="submitData()" id="btnSubmit" class="btn btn-primary btn-add w-100">
-                <span id="btnText">TAMBAH KE SENARAI</span>
-                <span id="loader" class="spinner-border spinner-border-sm loading-spinner"></span>
-            </button>
+        <div class="mb-4 p-3 bg-light rounded-3">
+            <input type="text" id="desc" class="form-control mb-2" placeholder="Nama Aplikasi">
+            <input type="text" id="url" class="form-control mb-3" placeholder="URL Link">
+            <button onclick="saveData()" id="btnSave" class="btn btn-primary w-100 fw-bold">TAMBAH SEKARANG</button>
         </div>
 
-        <div id="list">
-            <div class="text-center p-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2 text-muted">Memuatkan menu...</p>
-            </div>
+        <div id="display-list">
+            <div class="loading">Memuatkan menu...</div>
         </div>
     </div>
 
     <script>
-        window.onload = loadMenu;
+        // Jalankan fungsi load sebaik sahaja page dibuka
+        document.addEventListener('DOMContentLoaded', function() {
+            loadApps();
+        });
 
-        function loadMenu() {
-            google.script.run.withSuccessHandler(showMenu).getMenuData();
+        function loadApps() {
+            google.script.run
+                .withSuccessHandler(renderList)
+                .withFailureHandler(function(err) {
+                    document.getElementById('display-list').innerHTML = "Ralat: " + err;
+                })
+                .getMenuData();
         }
 
-        function showMenu(data) {
-            const container = document.getElementById('list');
-            container.innerHTML = '';
-            
-            // Reverse supaya yang baru ditambah duduk di atas
+        function renderList(data) {
+            const listDiv = document.getElementById('display-list');
+            if (!data || data.length === 0) {
+                listDiv.innerHTML = "<p class='text-center text-muted'>Tiada aplikasi dijumpai.</p>";
+                return;
+            }
+
+            let html = '';
+            // Susun yang terbaru di atas
             data.reverse().forEach(row => {
-                if(row[0] && row[1]) {
-                    const firstLetter = row[0].charAt(0).toUpperCase();
-                    container.innerHTML += `
-                        <a href="${row[1]}" target="_blank" class="app-link">
-                            <div class="icon-box">${firstLetter}</div>
-                            <div class="app-info">
-                                <h5>${row[0]}</h5>
-                                <p>Buka Aplikasi ➔</p>
+                if (row[0] && row[1]) {
+                    const char = row[0].charAt(0).toUpperCase();
+                    html += `
+                        <a href="${row[1]}" target="_blank" class="app-item">
+                            <div class="icon">${char}</div>
+                            <div>
+                                <div class="fw-bold">${row[0]}</div>
+                                <div class="small text-muted">Buka aplikasi ➔</div>
                             </div>
                         </a>`;
                 }
             });
+            listDiv.innerHTML = html;
         }
 
-        function submitData() {
-            const desc = document.getElementById('desc').value;
-            const url = document.getElementById('url').value;
-            const btnText = document.getElementById('btnText');
-            const loader = document.getElementById('loader');
+        function saveData() {
+            const d = document.getElementById('desc').value;
+            const u = document.getElementById('url').value;
+            if (!d || !u) return alert("Lengkapkan maklumat!");
 
-            if(!desc || !url) return alert("Sila isi semua maklumat!");
+            document.getElementById('btnSave').disabled = true;
+            document.getElementById('btnSave').innerText = "Menyimpan...";
 
-            // Loading state
-            btnText.style.display = 'none';
-            loader.style.display = 'inline-block';
-            document.getElementById('btnSubmit').disabled = true;
-
-            google.script.run.withSuccessHandler(() => {
-                // Reset form
+            google.script.run.withSuccessHandler(function() {
                 document.getElementById('desc').value = '';
                 document.getElementById('url').value = '';
-                btnText.style.display = 'inline';
-                loader.style.display = 'none';
-                document.getElementById('btnSubmit').disabled = false;
-                
-                loadMenu(); // Refresh list
-            }).addLink(desc, url);
+                document.getElementById('btnSave').disabled = false;
+                document.getElementById('btnSave').innerText = "TAMBAH SEKARANG";
+                loadApps();
+            }).addLink(d, u);
         }
     </script>
 </body>
