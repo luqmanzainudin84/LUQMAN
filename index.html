@@ -1,61 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light p-4">
-  <div class="container" style="max-width: 500px;">
-    <h2 class="text-center">LUQMAN HUB</h2>
-    
-    <div class="card p-3 mb-4 shadow-sm">
-      <input type="text" id="d" class="form-control mb-2" placeholder="Nama">
-      <input type="text" id="u" class="form-control mb-2" placeholder="Link">
-      <button onclick="save()" id="btn" class="btn btn-primary w-100">TAMBAH</button>
+    <div class="container" style="max-width: 500px;">
+        <h3 class="text-center">LUQMAN HUB (GitHub Edition)</h3>
+        
+        <div class="card p-3 mb-4">
+            <input type="text" id="desc" class="form-control mb-2" placeholder="Nama App">
+            <input type="text" id="url" class="form-control mb-2" placeholder="Link">
+            <button onclick="tambahData()" id="btn" class="btn btn-primary w-100">TAMBAH</button>
+        </div>
+
+        <div id="list" class="list-group">Memuatkan data...</div>
     </div>
 
-    <div id="list" class="list-group">Memuatkan data...</div>
-  </div>
+    <script>
+        // MASUKKAN LINK WEB APP APPS SCRIPT ANDA DI SINI
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbytPfNXoqEKp1fKpivEuW6L8zzlo2o857PJIQo5F2r-WPoXhNUE5M318gym1g3lGe4wVQ/exec";
 
-  <script>
-    window.onload = load;
+        // Fungsi Ambil Data (Read)
+        async function loadData() {
+            const response = await fetch(scriptUrl);
+            const data = await response.json();
+            let html = "";
+            data.reverse().forEach(row => {
+                html += `<a href="${row[1]}" target="_blank" class="list-group-item list-group-item-action">
+                            <b>${row[0]}</b><br><small>${row[1]}</small>
+                         </a>`;
+            });
+            document.getElementById('list').innerHTML = html;
+        }
 
-    function load() {
-      google.script.run
-        .withSuccessHandler(show)
-        .withFailureHandler(err => {
-          document.getElementById('list').innerHTML = "Ralat Teknikal: " + err;
-        })
-        .getMenuData();
-    }
+        // Fungsi Tambah Data (Write)
+        async function tambahData() {
+            const desc = document.getElementById('desc').value;
+            const url = document.getElementById('url').value;
+            document.getElementById('btn').disabled = true;
 
-    function show(data) {
-      let html = "";
-      if (data.length === 0) {
-        html = "<p class='text-center text-muted'>Tiada data di Sheets.</p>";
-      } else {
-        data.reverse().forEach(r => {
-          html += `<a href="${r[1]}" target="_blank" class="list-group-item list-group-item-action">
-                    <b>${r[0]}</b><br><small>${r[1]}</small>
-                  </a>`;
-        });
-      }
-      document.getElementById('list').innerHTML = html;
-    }
+            await fetch(scriptUrl, {
+                method: 'POST',
+                body: JSON.stringify({ desc: desc, url: url })
+            });
 
-    function save() {
-      let desc = document.getElementById('d').value;
-      let url = document.getElementById('u').value;
-      if(!desc || !url) return alert("Isi borang!");
-      
-      document.getElementById('btn').disabled = true;
-      google.script.run.withSuccessHandler(() => {
-        document.getElementById('d').value = "";
-        document.getElementById('u').value = "";
-        document.getElementById('btn').disabled = false;
-        load();
-      }).addLink(desc, url);
-    }
-  </script>
+            document.getElementById('desc').value = "";
+            document.getElementById('url').value = "";
+            document.getElementById('btn').disabled = false;
+            loadData(); // Refresh senarai
+        }
+
+        loadData();
+    </script>
 </body>
 </html>
